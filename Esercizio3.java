@@ -9,6 +9,7 @@ import java.util.Scanner;
 /**
  * ! Rimuovere il package prima di consegnarlo
  * ! Non ancora Testato !
+ * ! Rimuovere i File di Test prima di consegnare !
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
