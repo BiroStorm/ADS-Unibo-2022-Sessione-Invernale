@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  * ! Rimuovere il package prima di consegnarlo
- * ! Non ancora Testato !
+ * ! Testato e Funzionante !
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
@@ -16,7 +16,16 @@ import java.util.Scanner;
 
 /**
  * Prima implementazione per la risoluzione del problema tramite l'algoritmo
- * Greedy Dijkstra "Modificato"
+ * Greedy Dijkstra "Modificato".
+ * Si considera che Dijkstra viene applicato per trovare i cammini minimi nei
+ * grafi in cui ci siano solo archi positivi.
+ * Viene usato una Struttura Min-Heap per ragruppare i "nodi" (nel nostro caso
+ * caselle). Il termine "Nodo" e "Casella" sono interscambiabili in questo caso.
+ * L'array parent[] viene usato per salvare l'indicazione di chi è il nodo
+ * predecessore da cui si passa per raggiungere il nodo i-esimo.
+ * L'array height[] contiene le altezze della matrice presa in input.
+ * L'array directions[] indica la direzione da cui si arriva a quel nodo.
+ * 
  */
 public class Esercizio4 {
 
@@ -34,34 +43,46 @@ public class Esercizio4 {
     final static int starty = 0;
 
     public static void main(String[] args) {
-        Locale.setDefault(Locale.US); 
+        Locale.setDefault(Locale.US);
 
-        /*
-        if (args.length != 1) {
-            System.err.println("E' richiesto l'input del file da caricare.");
-            System.exit(-1);
-            return;
-        } */
+        // if (args.length != 1) {
+        // System.err.println("E' richiesto in input il percorso del file da
+        // caricare.");
+        // System.exit(-1);
+        // return;
+        // }
 
-        Esercizio4 es4 = new Esercizio4(args[0]);
+        Esercizio4 es4 = new Esercizio4("./Progetto2022/TestFiles/Es4Matrice.txt");
         es4.minimumCostPath(startx, starty);
         es4.printResult();
 
     }
 
+    /**
+     * Stampa il percorso necessario da (startx, starty) per arrivare a (endx,
+     * endy).
+     * Seguito dal "Costo" per arrivarci.
+     */
     private void printResult() {
         printPath(endx, endy);
-        System.out.println(distance[(n * m) - 1]);
+        System.out.println(distance[(n * m) - 1] + Ccell);
 
     }
 
+    /**
+     * Metodo ricorsivo che stampa il percorso, partendo dall'ultima casella fino
+     * alla prima, usando il vettore directions[] per navigare tra le caselle.
+     * 
+     * @param endx
+     * @param endy
+     */
     private void printPath(int endx, int endy) {
         final int idCasella = (endx * m) + (endy % m);
         if (endx == startx && endy == starty) {
             System.out.println(startx + "\t" + starty);
         } else if (parent[idCasella] < 0) {
             System.out.println("Destinazione non raggiungibile, c'è qualche errore!");
-            
+
         } else {
             switch (this.directions[idCasella]) {
                 case DOWN:
@@ -81,6 +102,15 @@ public class Esercizio4 {
         }
     }
 
+    /**
+     * Inizializza la classe prendendo i dati dal file in input, inizializzando
+     * inoltre 3 vettori grandi n*m.
+     * 
+     * Costo asintotico O(n*m)
+     * Costo di memoria O(n*m)
+     * 
+     * @param filepath percorso del file di input
+     */
     public Esercizio4(String filepath) {
         try {
             Scanner f = new Scanner(new FileReader(filepath));
@@ -113,6 +143,45 @@ public class Esercizio4 {
     }
 
     /**
+     * Metodo che prende in input le coordinate della casella di partenza e
+     * costruisce il percorso necessario per arrivare alla casella indicata con
+     * coordinate (endx, endy).
+     * Viene usato un Min-Heap inizializzato con grandezza n*m, insieme ad un
+     * vettore di booleani visited[] che mantiene traccia delle caselle già visitate
+     * dall'algoritmo di Dijkstra.
+     * Il metodo funziona come un normale algoritmo di Dijkstra leggermente
+     * migliorato per questo specifico problema (implementando alcuni accorgimenti),
+     * visitando i nodi più vicini finchè non visita anche il nodo destinazione.
+     * 
+     * Costo asintotico delle Operazioni:
+     * 3 Arrays.fill che avranno un costo di O(n*m) ciascuno.
+     * Un while che ha massimo un costo di O(n*m).
+     * Modifiche ai dati nel Min-heap dentro al while O(log n*m)
+     * (n*m dovuto alla grandezza stabilita all'inizio per il Min-Heap)
+     * 
+     * Sia k = n*m
+     * Per un costo complessivo O(3k + k*log(k)) = O(k*log(k)).
+     * 
+     * 
+     * Spiegazione del concetto per l'uso del Min-Heap su una matrice
+     * bidimensionale, tramite un unico identificativo i:
+     * 
+     * Visto che il Min-Heap identifica il dato tramite un numero intero (utile nel
+     * caso di grafi), ma nel nostro caso abbiamo una matrice, dove le celle sono
+     * identificate dalle coordiante x e y, è stato necessario trovare una funzione
+     * iniettiva di conversione che sia pure invertibile, tale da associare due
+     * coordinate (x,y) ad un numero e allo stesso tempo, che da quel numero sia
+     * possibile risalire nuovamente alle coordinate x e y.
+     * 
+     * Quindi:
+     * 
+     * Data una matrice con celle identificate da 0 a (n*m - 1), con n= numero di
+     * righe, m = numero di colonne.
+     * L'identificativo i-esimo corrisponde alla cella di coordinate (i/m, i%m)
+     * Mentre data una cella in posizione (riga, colonna), i = riga*m + colonna%m
+     *
+     * Inoltre:
+     * 
      * Dato una cella in coordinata x, y con identificativo i, la cella a destra
      * sarà i+1, la cella a sinistra i-1, la cella in alto i-m, la cella in basso
      * i-n.
@@ -121,7 +190,14 @@ public class Esercizio4 {
      * le celle nella prima colonna avranno i%m = 0. (non avranno una cella a
      * sinistra)
      * le celle nell'ultima colonna avranno i%m = m-1 (non avranno una cella a
-     * destra)
+     * destra).
+     * < alla fine questo non è servito visto che ci potevamo ricavare x e y >
+     * 
+     * 
+     * Sapendo questo, possiamo finalmente usare il Min-Heap identificando ogni
+     * singola cella con un identificatore univoco nella matrice, senza dover usare
+     * le coordiante x e y.
+     * 
      * 
      * @param startx
      * @param starty
@@ -136,11 +212,17 @@ public class Esercizio4 {
 
         distance[0] = 0;
         parent[0] = 0;
-        for (int v = 0; v < n * m; v++) {
-            // inserisco tutte le celle e le loro distanze nel minheap
-            // ? è possibile evitare ciò visto che non per forza, visitiamo tutti i nodi.
-            mh.insert(v, distance[v]);
-        }
+        // for (int v = 0; v < n * m; v++) {
+        // // inserisco tutte le celle e le loro distanze nel minheap
+        // // ? è possibile evitare ciò visto che non per forza, visitiamo tutti i nodi.
+        // mh.insert(v, distance[v]);
+        // }
+
+        // A differenza dell'algoritmo di Dijkstra visto a lezione, non è necessario
+        // passare da tutti i nodi, in quanto abbiamo l'obiettivo di trovare solo il
+        // percorso minimo che va dal nodo iniziale a quello finale.
+        // Deleghiamo l'inserimento dei vari nodi, solo quando li incontriamo.
+        mh.insert(0, 0);
 
         while (!mh.isEmpty()) {
             final int i = mh.min();
@@ -150,7 +232,7 @@ public class Esercizio4 {
             final int row = i / m;
             final int col = i % m;
 
-            // se siamo all'ultima cella allora abbiamo finito.
+            // se siamo all'ultima casella allora abbiamo finito.
             if (row == endx && col == endy)
                 return;
 
@@ -192,7 +274,7 @@ public class Esercizio4 {
             }
             // Casella Sotto
             if (row != n - 1) {
-                if(row == 4 && col == 4){
+                if (row == 4 && col == 4) {
                     System.out.println("ciao");
                 }
                 final int idDown = (row + 1) * m + col % m;
@@ -209,9 +291,10 @@ public class Esercizio4 {
     }
 
     /*
-     * Sostitudo della Classe Edges nel metodo con i grafi
+     * Sostituto della Classe Edges nel metodo con i grafi.
+     * Serve per indicare la direzione da cui si proviene per arrivare ad un certo
+     * nodo.
      */
-
     private enum Direction {
         UP,
         DOWN,
@@ -220,6 +303,9 @@ public class Esercizio4 {
     }
 
     /******************* MIN HEAP VISTO A LEZIONE ********************/
+    // Viene modificato solo il metodo .changePrio() dove nel caso in cui venga
+    // passato un |data| che non è stato inizializzato, allora lo inserisce
+    // direttamente.
     private class MinHeap {
 
         heapElem heap[];
@@ -412,29 +498,28 @@ public class Esercizio4 {
         }
 
         /**
+         * Modificato la parte in cui, se si prova a modificare la priorità associato ad
+         * un |data| che non esiste, allora esso viene solamente inserito.
+         * 
          * Chenage the priority associated to |data|. This method requires
          * time O(log n).
          */
         public void changePrio(int data, double newprio) {
             int j = pos[data];
-            assert (valid(j));
-            final double oldprio = heap[j].prio;
-            heap[j].prio = newprio;
-            if (newprio > oldprio) {
-                moveDown(j);
+            if (j < 0) {
+                // new |data| so insert directly.
+                this.insert(data, newprio);
             } else {
-                moveUp(j);
+                assert (valid(j));
+                final double oldprio = heap[j].prio;
+                heap[j].prio = newprio;
+                if (newprio > oldprio) {
+                    moveDown(j);
+                } else {
+                    moveUp(j);
+                }
             }
         }
     }
 
-    /*
-     * Data una matrice con celle identificate da 0 a (n*m - 1), con n= numero di
-     * righe,
-     * m = numero di colonne.
-     * L'identificativo i-esimo è la cella (i/m, i%m)
-     * Mentre data una cella in posizione (riga, colonna), i = riga*m + colonna%m
-     * 
-     * 
-     */
 }
