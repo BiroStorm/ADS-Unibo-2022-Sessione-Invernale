@@ -1,5 +1,6 @@
 package Progetto2022;
 
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -11,186 +12,57 @@ import java.util.Scanner;
  */
 
 /**
- * Nota: Si suppone che per "Sensore" si intenda l'utente o la classe main().
- * * Considerazioni Implementazione:
- * * Caso 1:
- * Implementazione tramite Albero Binario di Ricerca Bilanciato
- * ? Bilanciato perchè l'inserimento deve essere Log(n) e quindi se non fosse
- * bilanciato costa di più.
- * Il problema sta poi nel ribilanciamento dell'albero.
+ * Soluzione 2 tramite l'uso di un MinHeap:
+ * Tra le varie soluzioni, questa risulta quella più efficiente, dove si ha un
+ * C.C. pari a O(log n) per le Operazioni b) e c) garantendo al contempo le
+ * condizioni 1) e 2) richieste. Mentre per l'operazione a) si ha un Costo O(1).
  * 
- * * Implementazione 2:
- * Tramite una Linked-List. Bidirezionale, con puntatore alla testa e coda.
+ * A differenza di un MinHeap per le code di priorità, non si avrà l'array pos[]
+ * e quindi non si avrà un Overhead di O(K) in quanto non è necessario il metodo
+ * DecreseKey().
  * 
+ * Questa è la soluzione più efficiente dato il problema ma bisogna notare come
+ * esso sia efficiente perchè sappiamo che avremo sempre K o K-1 elementi nella
+ * nostra struttura. Quindi se l'ordine delle operazioni fossero cambiate,
+ * questa soluzione dovrebbe essere rivista, in quanto potrebbe capitare che
+ * si riempia lo spazio disponibile nella struttura, visto che il MinHeap si
+ * basa su un vettore statico di K elementi.
+ * Bisogna tenere in considerazione anche il fatto che il costo ammortizzato
+ * dell'Inserimento e della Cancellazione (dovuto al Raddoppio e Dimezzamento) è
+ * pari a O(1), quindi in "teoria" non violerebbe la condizione 1) e 2).
  */
 public class Esercizio1 {
-
-    private static class LinkedStructure {
-        Node head;
-        Node tail;
-
-        public LinkedStructure() {
-            head = null;
-            tail = null;
-        }
-
-        /**
-         * Aggiunta di un elemento nella LinkedList.
-         * Costo O(1)
-         * 
-         * @param i
-         * @param TSI
-         * @param TSE
-         */
-        public void addData(int i, int TSI, int TSE) {
-            Node newNode = new Node(i, TSI, TSE);
-            if (head == null) {
-                // first element
-                assert (tail == null);
-                head = newNode;
-                tail = newNode;
-                return;
-            }
-            assert (newNode.TSI > tail.TSI); // precondition 2: TSI(i) > TSI(i-1)
-            tail.next = newNode;
-            newNode.prev = tail;
-            tail = newNode;
-        }
-
-        /**
-         * Operazione A.
-         * Costo Teta(K).
-         * 
-         * @return Il nodo contenente la Tripla caratterizzata dal
-         *         valore minimo della differenza tra TSE(i) – TSI(i)
-         * Se la struttura è vuota ritorna null.
-         * 
-         */
-        public Node getMinTriple() {
-            if (head == null) {
-                return null;
-            }
-            Node min = head;
-            int minValue = head.TSE - head.TSI;
-            Node currentNode = head.next;
-            while (currentNode != null) {
-                if (minValue > currentNode.TSE - currentNode.TSI) {
-                    minValue = currentNode.TSE - currentNode.TSI;
-                    min = currentNode;
-                }
-                currentNode = currentNode.next;
-            }
-            return min;
-        }
-
-        /**
-         * Operazione b (senza passargli il nodo direttamente).
-         * Elimina la Tripla con la differenza tra TSE(i) - TSI(i) minima.
-         * Costo Teta(K) dovuto alla chiamata di getMinTriple();
-         */
-        public void deleteMin() {
-            Node min = getMinTriple();
-            if (min == null)
-                return;
-
-            if (min.prev == null && min.next == null) {
-                // case 0: Single Node
-                head = null;
-                tail = null;
-            } else {
-                if (min.prev == null) {
-                    // case 1: Head node
-                    head = min.next;
-                    min.next.prev = null;
-                } else if (min.next == null) {
-                    // case 2: Tail node
-                    tail = min.prev;
-                    min.prev.next = null;
-                }
-            }
-        }
-
-        /**
-         * Operazione b (passandogli il nodo trovato con l'operazione a).
-         * Elimina la Tripla con la differenza tra TSE(i) - TSI(i) minima.
-         * Costo O(1) visto che gli viene passato già la tripla con la differenza
-         * minima.
-         */
-        public void deleteMin(Node min) {
-            if (min == null)
-                return;
-
-            if (min.prev == null && min.next == null) {
-                // case 0: Single Node
-                head = null;
-                tail = null;
-            } else {
-                if (min.prev == null) {
-                    // case 1: Head node
-                    head = min.next;
-                    min.next.prev = null;
-                } else if (min.next == null) {
-                    // case 2: Tail node
-                    tail = min.prev;
-                    min.prev.next = null;
-                } else {
-                    // case default: Middle node
-                    min.next.prev = min.prev;
-                    min.prev.next = min.next;
-                }
-            }
-        }
-
-    }
-
-    private static class Node {
-        Node prev;
-        Node next;
-        int i;
-        int TSI;
-        int TSE;
-
-        public Node(int i, int TSI, int TSE) {
-            this.i = i;
-            this.TSI = TSI;
-            this.TSE = TSE;
-            this.prev = null;
-            this.next = null;
-            assert (TSE > TSI); // precondition 1
-        }
-
-        public String toString() {
-            return this.i + "\t" + this.TSI + "\t" + this.TSE;
-        }
-    }
+    MinHeap S;
 
     public static void main(String[] args) {
-        final int K = 20;
-        LinkedStructure S = new LinkedStructure();
 
+        Locale.setDefault(Locale.US);
+        Esercizio1 es1 = new Esercizio1();
+
+    }
+
+    public Esercizio1() {
         Scanner sc = new Scanner(System.in);
+        final int K = sc.nextInt();
         int TSI = sc.nextInt();
         int TSE = sc.nextInt();
         sc.close();
 
-        /**
-         * ! Attendere la Risposta sul forum per il Typo, in quanto viola la precondition 1.
-         */
-        assert (TSI > TSE);
+        assert (K > 15 && K < 27);
+        assert (TSE > TSI);
+
+        this.S = new MinHeap(K);
+
         int i = 1;
-        S.addData(i, TSI, TSE);
+        S.insert(i, TSI, TSE);
+
         Random Z = new Random(944041);
         Random T = new Random(944041);
 
-        /*
-         ! Da cancellare
-         * TSI = TSI precedente + un numero casuale [0, 7) shiftato di 4, quindi [4, 11)
-         * TSE = TSI attuale + un numero casuale [0, 6) shiftato di 2, quindi [2, 8)
-         */
         for (i = 2; i <= K; i++) {
             TSI = TSI + Z.nextInt(7) + 4;
             TSE = TSI + T.nextInt(6) + 2;
-            S.addData(i, TSI, TSE);
+            S.insert(i, TSI, TSE);
         }
 
         System.out.println("Lista Prima le 2K operazioni\n");
@@ -198,11 +70,11 @@ public class Esercizio1 {
 
         // Eseguire il ciclo di operazioni a), b) e c) 2*K volte.
         for (int j = 0; j < 2 * K; j++) {
-            Node min = S.getMinTriple();
-            S.deleteMin(min);
+            Tripla min = S.min();
+            S.deleteMin();
             TSI = TSI + Z.nextInt(7) + 4;
             TSE = TSI + T.nextInt(7) + 2;
-            S.addData(i, TSI, TSE);
+            S.insert(i, TSI, TSE);
             i++;
         }
 
@@ -213,16 +85,225 @@ public class Esercizio1 {
 
     /**
      * Stampa la lista delle Triple contenute nella struttura S.
-     * Nel formato: [i    TSI    TSE]
-     * @param LS
+     * Nel formato: [i TSI TSE]
+     * 
+     * @param S
      */
-    protected static void printList(LinkedStructure S) {
-        Node tripla = S.head;
-        System.out.println("i\tTSI\tTSE");
-        while (tripla != null) {
+    protected static void printList(MinHeap S) {
+        for (Tripla tripla : S.heap) {
             System.out.println(tripla);
-            tripla = tripla.next;
         }
     }
+
+    private class Tripla {
+        public final int i;
+        public final int TSI;
+        public final int TSE;
+
+        public Tripla(int i, int TSI, int TSE) {
+            this.i = i;
+            this.TSI = TSI;
+            this.TSE = TSE;
+        }
+
+        @Override
+        public String toString() {
+            return this.i + "\t" + this.TSI + "\t" + this.TSE;
+        }
+    }
+
+    private class MinHeap {
+
+        Tripla heap[];
+        int size, maxSize;
+
+        public MinHeap(int maxSize) {
+            this.heap = new Tripla[maxSize];
+            this.maxSize = maxSize;
+            this.size = 0;
+        }
+
+        /**
+         * Controlla la validità dell'indice
+         */
+        private boolean valid(int i) {
+            return ((i >= 0) && (i < size));
+        }
+
+        /**
+         * Inverte l'heap[i] con l'heap[j]
+         */
+        private void swap(int i, int j) {
+            Tripla elemTmp = heap[i];
+            heap[i] = heap[j];
+            heap[j] = elemTmp;
+        }
+
+        /**
+         * Ritorna il nodo padre di heap[i]
+         */
+        private int parent(int i) {
+            assert (valid(i));
+
+            return (i + 1) / 2 - 1;
+        }
+
+        /**
+         * Ritorna l'indice del figlio sinistro dell'heap[i]
+         */
+        private int lchild(int i) {
+            assert (valid(i));
+
+            return (i + 1) * 2 - 1;
+        }
+
+        /**
+         * Ritorna l'indice del figlio destro dell'heap[i]
+         */
+        private int rchild(int i) {
+            assert (valid(i));
+
+            return lchild(i) + 1;
+        }
+
+        /**
+         * Return true iff the heap is empty
+         */
+        public boolean isEmpty() {
+            return (size == 0);
+        }
+
+        /**
+         * Return true iff the heap is full, i.e., no more available slots
+         * are available.
+         */
+        public boolean isFull() {
+            return (size > maxSize);
+        }
+
+        /**
+         * Operazione A.
+         * Costo O(1).
+         * 
+         * @return La Tripla caratterizzata dal
+         *         valore minimo della differenza tra TSE(i) – TSI(i).
+         * 
+         */
+        public Tripla min() {
+            assert (!isEmpty());
+            return heap[0];
+        }
+
+        /**
+         * Exchange heap[i] with the parent element until it reaches the
+         * correct position into the heap. This method requires time O(log n).
+         */
+        private void moveUp(int i) {
+            assert (valid(i));
+
+            int p = parent(i);
+            while ((p >= 0) && (heap[i].TSE - heap[i].TSI < heap[p].TSE - heap[i].TSI)) {
+                swap(i, p);
+                i = p;
+                p = parent(i);
+            }
+        }
+
+        /**
+         * Return the position of the child of i (if any) with minimum
+         * priority. If i has no childs, return -1.
+         */
+        private int minChild(int i) {
+            assert (valid(i));
+
+            final int l = lchild(i);
+            final int r = rchild(i);
+            int result = -1;
+            if (valid(l)) {
+                result = l;
+                if (valid(r)) {
+                    if (heap[r].TSE - heap[r].TSI < heap[l].TSE - heap[l].TSI) {
+                        result = r;
+                    }
+                    // Si controlla inoltre, nel caso fossero uguali la differenza tra TSE e TSI,
+                    // l'indice i, che come richiesto, bisogna dare "priorità a quello minore".
+                    else if ((heap[r].TSE - heap[r].TSI == heap[l].TSE - heap[l].TSI) && (heap[r].i < heap[l].i)) {
+                        result = r;
+                    }
+                }
+            }
+            return result;
+        }
+
+        /**
+         * Inverte la tripla i-esima con il figlio con "priorità" inferiore, se esiste,
+         * finchè non raggiunge la corretta posizione nell'heap.
+         * Costo O(log n).
+         * 
+         * Tiene in considerazione anche l'identificativo "i" nella Tripla, in caso di
+         * Priorità uguale.
+         * In caso di priorità uguale, ci sarà sempre quello con il valore di "i" minore
+         * in cima, grazie al while() che si ferma solo quando la Priorità della Tripla
+         * in cima è minore o uguale a quelle dei figli ().
+         * 
+         * Non ci potrà mai essere una Tripla con identificativo "i" maggiore sopra ad
+         * una Tripla con stessa priorità ma uno con identificiativo "i" minore.
+         * Esso è dimostrabile per Assurdo, in quanto affinchè venga messo una Tripla X
+         * più in alto rispetto ad una Tripla Z, con stessa priorità ma quest'ultima con
+         * "i" minore, occorrerebbe che tra le due triple ci sia almeno un'altra Tripla
+         * Y in mezzo, quest'ultima con priorità maggiore rispetto alla priorità di X.
+         * Il che è assurdo visto che X e Z hanno la stessa priorità (X <= Y <= Z).
+         * 
+         */
+        private void moveDown(int i) {
+            assert (valid(i));
+
+            boolean done = false;
+            do {
+                int dst = minChild(i);
+                if (valid(dst)) {
+                    if ((heap[dst].TSE - heap[dst].TSI < heap[i].TSE - heap[i].TSI)) {
+                        swap(i, dst);
+                        i = dst;
+                    } else if ((heap[dst].TSE - heap[dst].TSI == heap[i].TSE - heap[i].TSI)
+                            && (heap[dst].i < heap[i].i)) {
+                        swap(i, dst);
+                        i = dst;
+                    }
+                } else {
+                    done = true;
+                }
+            } while (!done);
+        }
+
+        /**
+         * Inserisce una nuova Tripla (i, TSE, TSI) nel MinHeap.
+         * Costo O(log n).
+         */
+        public void insert(int id, int TSI, int TSE) {
+            assert (!isFull());
+
+            final int i = size++;
+            heap[i] = new Tripla(id, TSE, TSI);
+            moveUp(i);
+        }
+
+        /**
+         * ! Da controllare questo metodo.
+         * Delete the element with minimum priority. This method requires
+         * time O(log n).
+         */
+        public void deleteMin() {
+            assert (!isEmpty());
+
+            swap(0, size - 1);
+            size--;
+            if (size > 0)
+                moveDown(0);
+        }
+
+    }
+
+    // ! C'è QUALCHE BUG, VA IN LOOP INFINITO.
 
 }
