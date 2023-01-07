@@ -167,10 +167,10 @@ public class Esercizio1LinkedList {
     }
 
     public static void main(String[] args) {
-        final int K = 20;
         LinkedStructure S = new LinkedStructure();
 
         Scanner sc = new Scanner(System.in);
+        final int K = sc.nextInt();
         int TSI = sc.nextInt();
         int TSE = sc.nextInt();
         sc.close();
@@ -178,7 +178,7 @@ public class Esercizio1LinkedList {
         /**
          * ! Attendere la Risposta sul forum per il Typo, in quanto viola la precondition 1.
          */
-        assert (TSI > TSE);
+        assert (TSE > TSI);
         int i = 1;
         S.addData(i, TSI, TSE);
         Random Z = new Random(944041);
@@ -196,11 +196,13 @@ public class Esercizio1LinkedList {
         }
 
         System.out.println("Lista Prima le 2K operazioni\n");
-        printList(S);
+        //printList(S);
 
         // Eseguire il ciclo di operazioni a), b) e c) 2*K volte.
         for (int j = 0; j < 2 * K; j++) {
             Node min = S.getMinTriple();
+            System.out.println("Operazione " + i + " Deleting i = " + min.i + ", prio:" + (min.TSE - min.TSI));
+
             S.deleteMin(min);
             TSI = TSI + Z.nextInt(7) + 4;
             TSE = TSI + T.nextInt(7) + 2;

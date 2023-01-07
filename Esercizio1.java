@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- * ! Rimuovere il package prima di consegnarlo
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
@@ -30,6 +29,9 @@ import java.util.Scanner;
  * Bisogna tenere in considerazione anche il fatto che il costo ammortizzato
  * dell'Inserimento e della Cancellazione (dovuto al Raddoppio e Dimezzamento) è
  * pari a O(1), quindi in "teoria" non violerebbe la condizione 1) e 2).
+ * 
+ * Tempo: O(log K)
+ * Spazio: O(K)
  */
 public class Esercizio1 {
     MinHeap S;
@@ -62,6 +64,8 @@ public class Esercizio1 {
         for (i = 2; i <= K; i++) {
             TSI = TSI + Z.nextInt(7) + 4;
             TSE = TSI + T.nextInt(6) + 2;
+            assert (TSE > TSI);
+
             S.insert(i, TSI, TSE);
         }
 
@@ -70,7 +74,10 @@ public class Esercizio1 {
 
         // Eseguire il ciclo di operazioni a), b) e c) 2*K volte.
         for (int j = 0; j < 2 * K; j++) {
-            Tripla min = S.min();
+            Tripla t = S.min();
+
+            //System.out.println("Operation " + i + " Deleting i = " + t.i + ", prio:" + (t.TSE - t.TSI));
+
             S.deleteMin();
             TSI = TSI + Z.nextInt(7) + 4;
             TSE = TSI + T.nextInt(7) + 2;
@@ -167,15 +174,14 @@ public class Esercizio1 {
         }
 
         /**
-         * Return true iff the heap is empty
+         * Controlla se l'Heap è vuoto.
          */
         public boolean isEmpty() {
             return (size == 0);
         }
 
         /**
-         * Return true iff the heap is full, i.e., no more available slots
-         * are available.
+         * Controlla se l'Heap è pieno.
          */
         public boolean isFull() {
             return (size > maxSize);
@@ -195,23 +201,34 @@ public class Esercizio1 {
         }
 
         /**
-         * Exchange heap[i] with the parent element until it reaches the
-         * correct position into the heap. This method requires time O(log n).
+         * 
+         * Scambia la tripla i-esima con il suo padre finchè non arriva alla posizione
+         * corretta nell'Heap.
+         * 
+         * Ha un Costo pari a O(log n).
          */
         private void moveUp(int i) {
             assert (valid(i));
 
             int p = parent(i);
-            while ((p >= 0) && (heap[i].TSE - heap[i].TSI < heap[p].TSE - heap[i].TSI)) {
+
+            while ((p >= 0) && ((heap[i].TSE - heap[i].TSI < heap[p].TSE - heap[p].TSI)
+                    || ((heap[i].TSE - heap[i].TSI == heap[p].TSE - heap[p].TSI) && heap[i].i < heap[p].i))) {
+
                 swap(i, p);
                 i = p;
                 p = parent(i);
+
             }
         }
 
         /**
-         * Return the position of the child of i (if any) with minimum
-         * priority. If i has no childs, return -1.
+         * 
+         * Ritorna la posizione del figlio con la priorità minore.
+         * In caso di due figli con stessa priorità, ritorna quello con l'identificativo
+         * "i" minore.
+         * 
+         * Se non ha figli, ritorna -1.
          */
         private int minChild(int i) {
             assert (valid(i));
@@ -254,6 +271,10 @@ public class Esercizio1 {
          * Y in mezzo, quest'ultima con priorità maggiore rispetto alla priorità di X.
          * Il che è assurdo visto che X e Z hanno la stessa priorità (X <= Y <= Z).
          * 
+         * Gli "if statement" possono essere compattati, ma si lascia diviso per
+         * questioni di leggibilità del codice.
+         * 
+         * Costo O(log n)
          */
         private void moveDown(int i) {
             assert (valid(i));
@@ -269,6 +290,8 @@ public class Esercizio1 {
                             && (heap[dst].i < heap[i].i)) {
                         swap(i, dst);
                         i = dst;
+                    } else {
+                        done = true;
                     }
                 } else {
                     done = true;
@@ -284,14 +307,16 @@ public class Esercizio1 {
             assert (!isFull());
 
             final int i = size++;
-            heap[i] = new Tripla(id, TSE, TSI);
+            heap[i] = new Tripla(id, TSI, TSE);
             moveUp(i);
         }
 
         /**
-         * ! Da controllare questo metodo.
-         * Delete the element with minimum priority. This method requires
-         * time O(log n).
+         * 
+         * Elimina l'elemento con priorità minore.
+         * Riordina l'heap dopo l'eliminazione.
+         * 
+         * Tempo O(log n).
          */
         public void deleteMin() {
             assert (!isEmpty());
@@ -301,9 +326,5 @@ public class Esercizio1 {
             if (size > 0)
                 moveDown(0);
         }
-
     }
-
-    // ! C'è QUALCHE BUG, VA IN LOOP INFINITO.
-
 }
