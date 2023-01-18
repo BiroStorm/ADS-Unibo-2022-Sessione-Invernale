@@ -1,5 +1,3 @@
-package Progetto2022;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,9 +5,6 @@ import java.util.Locale;
 import java.util.Scanner;
 
 /**
- * ! Rimuovere il package prima di consegnarlo
- * ! Non ancora Testato !
- * ! Rimuovere i File di Test prima di consegnare !
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
@@ -102,8 +97,7 @@ public class Esercizio3 {
      * coins(i), quindi sicuramente non è erogabile dalle prossime monete contenuti
      * in coins(i*) sempre per proposizione a).
      * 
-     * ! Mi sento proprio un matematico a inventarmi tutte le cose😂😂😂
-     * ! Da testare il metodo e calcolare il costo asintotico.
+     * Costo O(n log n) dovuto alla necessità di ordinare l'array.
      * 
      * @return Resto non erogabile con le monete presenti in coins()
      */

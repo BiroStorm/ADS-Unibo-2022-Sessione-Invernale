@@ -1,5 +1,3 @@
-package Progetto2022;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,8 +5,6 @@ import java.util.Locale;
 import java.util.Scanner;
 
 /**
- * ! Rimuovere il package prima di consegnarlo
- * ! Testato e Funzionante !
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
@@ -19,12 +15,11 @@ import java.util.Scanner;
  * Greedy Dijkstra "Modificato".
  * Si considera che Dijkstra viene applicato per trovare i cammini minimi nei
  * grafi in cui ci siano solo archi positivi.
- * Viene usato una Struttura Min-Heap per ragruppare i "nodi" (nel nostro caso
+ * Viene usato una Struttura Min-Heap per raggruppare i "nodi" (nel nostro caso
  * caselle). Il termine "Nodo" e "Casella" sono interscambiabili in questo caso.
  * L'array parent[] viene usato per salvare l'indicazione di chi è il nodo
  * predecessore da cui si passa per raggiungere il nodo i-esimo.
  * L'array height[] contiene le altezze della matrice presa in input.
- * L'array directions[] indica la direzione da cui si arriva a quel nodo.
  * 
  */
 public class Esercizio4 {
@@ -36,30 +31,29 @@ public class Esercizio4 {
     int[] parent;
     double[] distance;
     double[][] height;
-    Direction[] directions;
     int endx;
     int endy;
-    final static int startx = 0;
-    final static int starty = 0;
+    final static int STARTX = 0;
+    final static int STARTY = 0;
+    
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.US);
 
-        // if (args.length != 1) {
-        // System.err.println("E' richiesto in input il percorso del file da
-        // caricare.");
-        // System.exit(-1);
-        // return;
-        // }
+        if (args.length != 1) {
+            System.err.println("E' richiesto in input il percorso del file da caricare.");
+            System.exit(-1);
+            return;
+        }
 
-        Esercizio4 es4 = new Esercizio4("./Progetto2022/TestFiles/Es4Matrice.txt");
-        es4.minimumCostPath(startx, starty);
+        Esercizio4 es4 = new Esercizio4(args[0]);
+        es4.minimumCostPath(STARTX, STARTY);
         es4.printResult();
 
     }
 
     /**
-     * Stampa il percorso necessario da (startx, starty) per arrivare a (endx,
+     * Stampa il percorso necessario da (STARTX, STARTY) per arrivare a (endx,
      * endy).
      * Seguito dal "Costo" per arrivarci.
      */
@@ -71,33 +65,21 @@ public class Esercizio4 {
 
     /**
      * Metodo ricorsivo che stampa il percorso, partendo dall'ultima casella fino
-     * alla prima, usando il vettore directions[] per navigare tra le caselle.
+     * alla prima, usando il vettore parent[] per navigare tra le caselle.
      * 
      * @param endx
      * @param endy
      */
     private void printPath(int endx, int endy) {
         final int idCasella = (endx * m) + (endy % m);
-        if (endx == startx && endy == starty) {
-            System.out.println(startx + "\t" + starty);
-        } else if (parent[idCasella] < 0) {
+        int prevCell = parent[idCasella];
+        if (endx == STARTX && endy == STARTY) {
+            System.out.println(STARTX + "\t" + STARTY);
+        } else if (prevCell < 0) {
             System.out.println("Destinazione non raggiungibile, c'è qualche errore!");
 
         } else {
-            switch (this.directions[idCasella]) {
-                case DOWN:
-                    printPath(endx - 1, endy);
-                    break;
-                case LEFT:
-                    printPath(endx, endy + 1);
-                    break;
-                case RIGHT:
-                    printPath(endx, endy - 1);
-                    break;
-                case UP:
-                    printPath(endx + 1, endy);
-                    break;
-            }
+            printPath(prevCell / m, prevCell % m);
             System.out.println(endx + "\t" + endy);
         }
     }
@@ -134,7 +116,6 @@ public class Esercizio4 {
             this.parent = new int[n * m];
             this.distance = new double[n * m];
 
-            this.directions = new Direction[n * m];
 
         } catch (IOException ex) {
             System.err.println(ex);
@@ -193,16 +174,15 @@ public class Esercizio4 {
      * destra).
      * < alla fine questo non è servito visto che ci potevamo ricavare x e y >
      * 
-     * 
      * Sapendo questo, possiamo finalmente usare il Min-Heap identificando ogni
      * singola cella con un identificatore univoco nella matrice, senza dover usare
      * le coordiante x e y.
      * 
      * 
-     * @param startx
-     * @param starty
+     * @param STARTX
+     * @param STARTY
      */
-    private void minimumCostPath(int startx, int starty) {
+    private void minimumCostPath(int STARTX, int STARTY) {
         MinHeap mh = new MinHeap(n * m);
 
         boolean[] visited = new boolean[n * m];
@@ -212,11 +192,6 @@ public class Esercizio4 {
 
         distance[0] = 0;
         parent[0] = 0;
-        // for (int v = 0; v < n * m; v++) {
-        // // inserisco tutte le celle e le loro distanze nel minheap
-        // // ? è possibile evitare ciò visto che non per forza, visitiamo tutti i nodi.
-        // mh.insert(v, distance[v]);
-        // }
 
         // A differenza dell'algoritmo di Dijkstra visto a lezione, non è necessario
         // passare da tutti i nodi, in quanto abbiamo l'obiettivo di trovare solo il
@@ -245,7 +220,6 @@ public class Esercizio4 {
                     distance[idUp] = costToGoUp;
                     mh.changePrio(idUp, costToGoUp);
                     parent[idUp] = i;
-                    directions[idUp] = Direction.UP;
                 }
             }
             // Casella a Sinistra
@@ -257,7 +231,6 @@ public class Esercizio4 {
                     distance[idLeft] = costToGoUp;
                     mh.changePrio(idLeft, costToGoUp);
                     parent[idLeft] = i;
-                    directions[idLeft] = Direction.LEFT;
                 }
             }
             // Casella a Destra
@@ -269,14 +242,10 @@ public class Esercizio4 {
                     distance[idRight] = costToGoUp;
                     mh.changePrio(idRight, costToGoUp);
                     parent[idRight] = i;
-                    directions[idRight] = Direction.RIGHT;
                 }
             }
             // Casella Sotto
             if (row != n - 1) {
-                if (row == 4 && col == 4) {
-                    System.out.println("ciao");
-                }
                 final int idDown = (row + 1) * m + col % m;
                 final double costToGoUp = distance[i] + Ccell
                         + (Cheight * Math.pow(height[row][col] - height[row + 1][col], 2));
@@ -284,22 +253,9 @@ public class Esercizio4 {
                     distance[idDown] = costToGoUp;
                     mh.changePrio(idDown, costToGoUp);
                     parent[idDown] = i;
-                    directions[idDown] = Direction.DOWN;
                 }
             }
         }
-    }
-
-    /*
-     * Sostituto della Classe Edges nel metodo con i grafi.
-     * Serve per indicare la direzione da cui si proviene per arrivare ad un certo
-     * nodo.
-     */
-    private enum Direction {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT;
     }
 
     /******************* MIN HEAP VISTO A LEZIONE ********************/

@@ -1,13 +1,9 @@
-package Progetto2022;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
 /**
- * ! Rimuovere il package prima di consegnarlo
- * ! Testato correttamente !
  * Enjun Hu
  * 0000944041
  * enjun.hu@studio.unibo.it
@@ -34,6 +30,10 @@ public class Esercizio2 {
 
     }
 
+    /**
+     * Inizializza il Grafo leggendo dal file in input.
+     * @param inputf
+     */
     private void readGraph(String inputf) {
         try {
             Scanner f = new Scanner(new FileReader(inputf));

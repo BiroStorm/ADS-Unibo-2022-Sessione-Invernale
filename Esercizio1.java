@@ -1,5 +1,3 @@
-package Progetto2022;
-
 import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
@@ -43,6 +41,13 @@ public class Esercizio1 {
 
     }
 
+    /**
+     * Chiede in input i valori di K, TSI(1) e TSE(1)
+     * per poi popolare la struttura partendo da questi valori.
+     * Inoltre esegue per 2K volte le operazioni a), b), c).
+     * 
+     * Viene stampato i dati nella struttura prima e dopo il ciclo di operazioni.
+     */
     public Esercizio1() {
         Scanner sc = new Scanner(System.in);
         final int K = sc.nextInt();
@@ -75,12 +80,9 @@ public class Esercizio1 {
         // Eseguire il ciclo di operazioni a), b) e c) 2*K volte.
         for (int j = 0; j < 2 * K; j++) {
             Tripla t = S.min();
-
-            //System.out.println("Operation " + i + " Deleting i = " + t.i + ", prio:" + (t.TSE - t.TSI));
-
             S.deleteMin();
             TSI = TSI + Z.nextInt(7) + 4;
-            TSE = TSI + T.nextInt(7) + 2;
+            TSE = TSI + T.nextInt(6) + 2;
             S.insert(i, TSI, TSE);
             i++;
         }
@@ -119,6 +121,10 @@ public class Esercizio1 {
         }
     }
 
+    /**
+     * Struttura MinHeap (vista a lezione), modificata e riadattata per soddisfare
+     * le operazioni e le condizioni 1) e 2) richieste.
+     */
     private class MinHeap {
 
         Tripla heap[];

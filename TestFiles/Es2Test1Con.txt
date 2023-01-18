@@ -1,4 +1,4 @@
-9
+12
 1 0
 5 0
 3 1
@@ -8,8 +8,14 @@
 2 5
 1 6
 3 6
+1 1
+2 9
+9 9
 
-Le ultime 3 sono:
+Le ultime 6 sono:
 C
 C
 NC
+C
+NC
+C
