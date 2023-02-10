@@ -21,6 +21,12 @@ import java.util.Scanner;
  * predecessore da cui si passa per raggiungere il nodo i-esimo.
  * L'array height[] contiene le altezze della matrice presa in input.
  * 
+ * 
+ * NOTA POST ESAME: Per grafi molto grandi, bisogna tenere in considerazione il
+ * limite superiore del datatype "double", visto che la distanza dal nodo
+ * iniziale a quello finale potrebbe essere estremamente elevato.
+ * Per tale motivo si è consigliato l'utilizzo di un Long (? conversione ?) o
+ * nel modo più semplice un BigDecimal.
  */
 public class Esercizio4 {
 
@@ -35,7 +41,6 @@ public class Esercizio4 {
     int endy;
     final static int STARTX = 0;
     final static int STARTY = 0;
-    
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.US);
@@ -115,7 +120,6 @@ public class Esercizio4 {
 
             this.parent = new int[n * m];
             this.distance = new double[n * m];
-
 
         } catch (IOException ex) {
             System.err.println(ex);
